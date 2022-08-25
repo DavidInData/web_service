@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	_ "github.com/lib/pq"
 )
@@ -40,6 +41,17 @@ func init() {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 func main() {
+	PORT := "8081"
+	mux := http.NewServeMux()
+	s := &http.Server{
+		Addr:         PORT,
+		Handler:      mux,
+		IdleTimeout:  10 * time.Second,
+		ReadTimeout:  time.Second,
+		WriteTimeout: time.Second,
+	}
+
+	mux.Handle("/report1", http.HandlerFunc(report1))
 
 	
 
@@ -62,11 +74,51 @@ func main() {
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
+
+
+	fmt.Println("Ready to serve at", PORT)
+	err = s.ListenAndServe()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 		
 
 	}
 
 }
+
+
+func report1(w http.ResponseWriter, r *http.Request) {
+	log.Println("Serving:", r.URL.Path, "from", r.Host)
+	w.WriteHeader(http.StatusOK)
+
+
+	rows, err := db.Query(`SELECT id, ccvi_score from ccvi_details where id = 1;`)
+	if err != nil {
+	    panic(err)
+	}
+
+	timeline := Timeline{}
+	defer rows.Close()
+	for rows.Next() {
+	    
+	    err = rows.Scan(&timeline.Id, &timeline.ccvi_score)
+	    if err != nil {
+	        panic(err)
+	    }
+	    fmt.Println(timeline)
+	}
+	err = rows.Err()
+	if err != nil {
+	    panic(err)
+	}
+
+
+	// Body := list()
+	fmt.Fprintf(w, "%s", timeline)
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
