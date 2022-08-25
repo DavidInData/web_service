@@ -40,7 +40,7 @@ func main() {
 
 	log.Print("starting CBI Microservices ...")
 
-	rows, err := db.Query(`SELECT id from ccvi_details where id = 1;`)
+	rows, err := db.Query(`SELECT id, ccvi_score from ccvi_details where id = 1;`)
 	if err != nil {
 	    panic(err)
 	}
