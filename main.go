@@ -51,14 +51,8 @@ func main() {
 		WriteTimeout: time.Second,
 	}
 
-	mux.Handle("/report1", http.HandlerFunc(report1))
-
-	
-
-	log.Print("starting CBI Microservices ...")
-
-
-	http.HandleFunc("/report2", handler)
+	http.HandleFunc("/", handler)
+	http.HandleFunc("/ccvi", handler1)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
@@ -89,7 +83,10 @@ func main() {
 }
 
 
-func report1(w http.ResponseWriter, r *http.Request) {
+
+
+
+func handler1(w http.ResponseWriter, r *http.Request) {
 	log.Println("Serving:", r.URL.Path, "from", r.Host)
 	w.WriteHeader(http.StatusOK)
 
@@ -125,34 +122,9 @@ func report1(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	name := os.Getenv("PROJECT_ID")
-	if name == "" {
-		name = "CBI-Project"
-	}
-
-	rows, err := db.Query(`SELECT id, ccvi_score from ccvi_details where id = 1;`)
-	if err != nil {
-	    panic(err)
-	}
-
-	timeline := Timeline{}
-	defer rows.Close()
-	for rows.Next() {
-	    
-	    err = rows.Scan(&timeline.Id, &timeline.ccvi_score)
-	    if err != nil {
-	        panic(err)
-	    }
-	    fmt.Println(timeline)
-	}
-	err = rows.Err()
-	if err != nil {
-	    panic(err)
-	}
-
+	name := "The REPORTS"
 	fmt.Fprintf(w, "CBI data collection microservices' goroutines have started for %s!\n", name)
 	//fmt.Fprintf(w, timeline.Id)
-	fmt.Fprintf(w, "CBI data collection microservices' goroutines have started for %s!\n", timeline)
 
 }
 
