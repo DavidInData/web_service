@@ -10,6 +10,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type Timeline struct {
+    Id int
+    ccvi_score float64
+}
+
 // Declare my database connection
 var db *sql.DB
 
@@ -39,30 +44,6 @@ func main() {
 	
 
 	log.Print("starting CBI Microservices ...")
-
-	rows, err := db.Query(`SELECT id, ccvi_score from ccvi_details where id = 1;`)
-	if err != nil {
-	    panic(err)
-	}
-
-	type Timeline struct {
-    Id int
-    ccvi_score float64
-	}
-
-	defer rows.Close()
-	for rows.Next() {
-	    timeline := Timeline{}
-	    err = rows.Scan(&timeline.Id, &timeline.ccvi_score)
-	    if err != nil {
-	        panic(err)
-	    }
-	    fmt.Println(timeline)
-	}
-	err = rows.Err()
-	if err != nil {
-	    panic(err)
-	}
 
 
 	http.HandleFunc("/", handler)
@@ -97,7 +78,29 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		name = "CBI-Project"
 	}
 
-	fmt.Fprintf(w, "CBI data collection microservices' goroutines have started for %s!\n", timelime)
+	rows, err := db.Query(`SELECT id, ccvi_score from ccvi_details where id = 1;`)
+	if err != nil {
+	    panic(err)
+	}
+
+	timeline := Timeline{}
+	defer rows.Close()
+	for rows.Next() {
+	    
+	    err = rows.Scan(&timeline.Id, &timeline.ccvi_score)
+	    if err != nil {
+	        panic(err)
+	    }
+	    fmt.Println(timeline)
+	}
+	err = rows.Err()
+	if err != nil {
+	    panic(err)
+	}
+
+	fmt.Fprintf(w, "CBI data collection microservices' goroutines have started for %s!\n", name)
+	//fmt.Fprintf(w, timeline.Id)
+	fmt.Fprintf(w, "CBI data collection microservices' goroutines have started for %s!\n", timeline)
 
 }
 
