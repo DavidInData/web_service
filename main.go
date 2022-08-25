@@ -97,7 +97,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		name = "CBI-Project"
 	}
 
-	fmt.Fprintf(w, "CBI data collection microservices' goroutines have started for %s!\n", name)
+	fmt.Fprintf(w, "CBI data collection microservices' goroutines have started for %s!\n", timelime)
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
