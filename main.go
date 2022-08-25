@@ -58,7 +58,7 @@ func main() {
 	log.Print("starting CBI Microservices ...")
 
 
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/report2", handler)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
