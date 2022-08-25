@@ -7,7 +7,7 @@ steps:
   
 - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
   entrypoint: gcloud
-  args: ['run', 'deploy','microservice', '--image','gcr.io/citric-dream-359919/microservice', '--region','us-central1', '--add-cloudsql-instances', 'citric-dream-359919:us-central1:mypostgres','--platform','managed', '--port','8080', '--allow-unauthenticated']
+  args: ['run', 'deploy','microservice', '--image','gcr.io/citric-dream-359919/microservice', '--region','us-central1', '--add-cloudsql-instances', 'citric-dream-359919:us-central1:mypostgres','--platform','managed', '--port','8081', '--allow-unauthenticated']
 images:
 - gcr.io/citric-dream-359919/microservice
 
