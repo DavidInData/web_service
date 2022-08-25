@@ -2,18 +2,11 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"strconv"
-	"time"
 
-	"github.com/kelvins/geocoder"
 	_ "github.com/lib/pq"
 )
 
@@ -55,6 +48,7 @@ func main() {
 	type Timeline struct {
     Id int
     ccvi_score float64
+	}
 
 	defer rows.Close()
 	for rows.Next() {
