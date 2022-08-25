@@ -1,0 +1,12 @@
+# Steps to build a docker image for go-microservice, push it to container registry and deploy it to cloud run.  
+- name: "gcr.io/cloud-builders/docker"
+  args: ['build', '-t', 'gcr.io/citric-dream-359919/microservice','.']
+- name: "gcr.io/cloud-builders/docker"
+  args: ['push', 'gcr.io/citric-dream-359919/microservice']
+  
+- name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+  entrypoint: gcloud
+  args: ['run', 'deploy','microservice', '--image','gcr.io/citric-dream-359919/microservice', '--region','us-central1', '--add-cloudsql-instances', 'citric-dream-359919:us-central1:mypostgres','--platform','managed', '--port','8080', '--allow-unauthenticated']
+images:
+- gcr.io/citric-dream-359919/microservice
+
