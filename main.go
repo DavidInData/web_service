@@ -254,7 +254,7 @@ func handler4(w http.ResponseWriter, r *http.Request) {
 	        panic(err)
 	    }
 	    fmt.Fprintf(w, "Permit ID: %s\n Permit Code: %s\n Permit Type: %s\n Per Capita Income: %s\n", 
-	    	loan_results.permit_id, loan_results.permit_code, loan_results.community_area, loan_results.income)
+	    	loan_results.permit_id, loan_results.permit_code, loan_results.permit_type, loan_results.income)
 	    fmt.Fprintf(w, "\n")
 	    fmt.Fprintf(w, "\n")
 	}
