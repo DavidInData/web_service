@@ -110,7 +110,8 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 	    if err != nil {
 	        panic(err)
 	    }
-	    fmt.Println(covid_results)
+	    fmt.Fprintf(w, "Week of: %s\n Zip Code: %s\n Cases Weekly: %s\n Precent Tested Weekly %s\n: ", 
+	    	covid_results.week, covid_results.zipcode, covid_results.cases, covid_results.percent)
 	}
 	err = rows.Err()
 	if err != nil {
@@ -118,8 +119,7 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Body := list()
-	fmt.Fprintf(w, "Week of: %s\n Zip Code: %s\n Cases Weekly: %s\n Precent Tested Weekly %d\n: ", 
-		covid_results.week, covid_results.zipcode, covid_results.cases, covid_results.percent)
+	
 }
 
 
