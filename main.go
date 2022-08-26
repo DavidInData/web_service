@@ -77,7 +77,7 @@ func main() {
 	http.HandleFunc("/ccvi", handler1)
 	http.HandleFunc("/covid", handler2)
 	http.HandleFunc("/waive", handler3)
-	http.HandleFunc("/loan", handler3)
+	http.HandleFunc("/loan", handler4)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
