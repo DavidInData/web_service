@@ -11,9 +11,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type Timeline struct {
-    Id int
-    ccvi_score float64
+type Covid_results struct {
+    week string
+    zipcode string
+    cases string
+    percent string
 }
 
 // Declare my database connection
@@ -53,6 +55,8 @@ func main() {
 
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/ccvi", handler1)
+	//http.HandleFunc("/ccvi", handler2)
+	//http.HandleFunc("/ccvi", handler3)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
@@ -91,29 +95,31 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 
-	rows, err := db.Query(`SELECT id, ccvi_score from ccvi_details where id = 1;`)
+	rows, err := db.Query(`select to_date(LEFT(week_end,10), 'YYYY-MM-DD'), zip_code, cases_weekly, percent_tested_positive_weekly
+		from covid_details
+		where to_date(LEFT(week_end,10), 'YYYY-MM-DD') > now() - interval '7 day';`)
 	if err != nil {
 	    panic(err)
 	}
 
-	timeline := Timeline{}
+	covid_results := Covid_results{}
 	defer rows.Close()
 	for rows.Next() {
 	    
-	    err = rows.Scan(&timeline.Id, &timeline.ccvi_score)
+	    err = rows.Scan(&covid_results.week, &covid_results.zipcode, &covid_results.cases, &covid_results.percent)
 	    if err != nil {
 	        panic(err)
 	    }
-	    fmt.Println(timeline)
+	    fmt.Println(covid_results)
 	}
 	err = rows.Err()
 	if err != nil {
 	    panic(err)
 	}
 
-
 	// Body := list()
-	fmt.Fprintf(w, "%s", timeline)
+	fmt.Fprintf(w, "Week of: %s\n Zip Code: %s\n Cases Weekly: %s\n Precent Tested Weekly %d\n: ", 
+		covid_results.week, covid_results.zipcode, covid_results.cases, covid_results.percent)
 }
 
 
@@ -123,7 +129,7 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	name := "The REPORTS"
-	fmt.Fprintf(w, "CBI data collection microservices' goroutines have started for %s!\n", name)
+	fmt.Fprintf(w, "MSDS 432 - Foundations of Data Engineering.. feel free to run %s!\n", name)
 	//fmt.Fprintf(w, timeline.Id)
 
 }
