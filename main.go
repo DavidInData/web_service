@@ -30,6 +30,13 @@ type Waive_results struct {
     community_area string
 }
 
+type Loan_results struct {
+    permit_id string
+    permit_code string
+    permit_type string
+    income string
+}
+
 
 // Declare my database connection
 var db *sql.DB
@@ -70,6 +77,7 @@ func main() {
 	http.HandleFunc("/ccvi", handler1)
 	http.HandleFunc("/covid", handler2)
 	http.HandleFunc("/waive", handler3)
+	http.HandleFunc("/loan", handler3)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
@@ -208,7 +216,45 @@ func handler3(w http.ResponseWriter, r *http.Request) {
 	        panic(err)
 	    }
 	    fmt.Fprintf(w, "Permit ID: %s\n Permit Code: %s\n Community Area: %s\n", 
-	    	waive_results.permit_id, waive_results.permit_id, waive_results.permit_id)
+	    	waive_results.permit_id, waive_results.permit_code, waive_results.community_area)
+	    fmt.Fprintf(w, "\n")
+	    fmt.Fprintf(w, "\n")
+	}
+	err = rows.Err()
+	if err != nil {
+	    panic(err)
+	}
+
+	// Body := list()
+	
+}
+
+func handler4(w http.ResponseWriter, r *http.Request) {
+	log.Println("Serving:", r.URL.Path, "from", r.Host)
+	w.WriteHeader(http.StatusOK)
+
+
+	rows, err := db.Query(`select bp.permit_id, bp.permit_code, bp.permit_type, cau.per_capita_income from building_permits bp, community_area_unemployment cau
+		where bp.community_area = cau.community_area
+		and bp.permit_type = 'PERMIT - NEW CONSTRUCTION'
+		and cast (per_capita_income as integer) < 30000;`)
+	if err != nil {
+	    panic(err)
+	}
+
+	loan_results := Loan_results{}
+
+	fmt.Fprintf(w, "SMALL BUSINESS THAT QUALITY FOR SPECIAL LOAN\n")
+	fmt.Fprintf(w, "\n")
+	defer rows.Close()
+	for rows.Next() {
+	    
+	    err = rows.Scan(&loan_results.permit_id, &loan_results.permit_code, &loan_results.permit_type, &loan_results.income)
+	    if err != nil {
+	        panic(err)
+	    }
+	    fmt.Fprintf(w, "Permit ID: %s\n Permit Code: %s\n Permit Type: %s\n Per Capita Income: %s\n", 
+	    	loan_results.permit_id, loan_results.permit_code, loan_results.community_area, loan_results.income)
 	    fmt.Fprintf(w, "\n")
 	    fmt.Fprintf(w, "\n")
 	}
@@ -226,8 +272,9 @@ func handler3(w http.ResponseWriter, r *http.Request) {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	name := "REPORTS"
-	fmt.Fprintf(w, "MSDS 432 - Foundations of Data Engineering. Run the %s!", name)
+	name := "reports"
+	fmt.Fprintf(w, "MSDS 432 - Foundations of Data Engineering!!\n")
+	fmt.Fprintf(w, "Run the %s!", name)
 	//fmt.Fprintf(w, timeline.Id)
 
 }
