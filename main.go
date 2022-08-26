@@ -24,6 +24,13 @@ type Ccvi_results struct {
     ccvi_score string
 }
 
+type Waive_results struct {
+    permit_id string
+    permit_code string
+    community_area string
+}
+
+
 // Declare my database connection
 var db *sql.DB
 
@@ -62,7 +69,7 @@ func main() {
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/ccvi", handler1)
 	http.HandleFunc("/covid", handler2)
-	//http.HandleFunc("/ccvi", handler3)
+	http.HandleFunc("/waive", handler3)
 
 	// Determine port for HTTP service.
 	port := os.Getenv("PORT")
@@ -111,6 +118,7 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 	covid_results := Covid_results{}
 
 	fmt.Fprintf(w, "WEEKLY COVID CASES REPORT\n")
+	fmt.Fprintf(w, "\n")
 	defer rows.Close()
 	for rows.Next() {
 	    
@@ -118,7 +126,7 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 	    if err != nil {
 	        panic(err)
 	    }
-	    fmt.Fprintf(w, "Week of: %s\n Zip Code: %s\n Cases Weekly: %s\n Precent Tested Weekly %s\n ", 
+	    fmt.Fprintf(w, "Week of: %s\n Zip Code: %s\n Cases Weekly: %s\n Precent Tested Weekly %s\n", 
 	    	covid_results.week, covid_results.zipcode, covid_results.cases, covid_results.percent)
 	    fmt.Fprintf(w, "\n")
 	    fmt.Fprintf(w, "\n")
@@ -149,6 +157,7 @@ func handler2(w http.ResponseWriter, r *http.Request) {
 	ccvi_results := Ccvi_results{}
 
 	fmt.Fprintf(w, "WEEKLY HIGH CCVI REPORT\n")
+	fmt.Fprintf(w, "\n")
 	defer rows.Close()
 	for rows.Next() {
 	    
@@ -156,8 +165,50 @@ func handler2(w http.ResponseWriter, r *http.Request) {
 	    if err != nil {
 	        panic(err)
 	    }
-	    fmt.Fprintf(w, "Community Area/Zip: %s\n Community Area Name: %s\n CCVI Score: %s\n Precent Tested Weekly %s\n ", 
+	    fmt.Fprintf(w, "Community Area/Zip: %s\n Community Area Name: %s\n CCVI Score: %s\n", 
 	    	ccvi_results.community_area_or_zip, ccvi_results.community_area_name, ccvi_results.ccvi_score)
+	    fmt.Fprintf(w, "\n")
+	    fmt.Fprintf(w, "\n")
+	}
+	err = rows.Err()
+	if err != nil {
+	    panic(err)
+	}
+
+	// Body := list()
+	
+}
+
+
+func handler3(w http.ResponseWriter, r *http.Request) {
+	log.Println("Serving:", r.URL.Path, "from", r.Host)
+	w.WriteHeader(http.StatusOK)
+
+
+	rows, err := db.Query(`select permit_id, permit_code, community_area from building_permits
+		where community_area in (select community_area from community_area_unemployment
+		order by unemployment DESC
+		LIMIT 5)
+		or community_area in (select community_area from community_area_unemployment
+		order by below_poverty_level DESC
+		LIMIT 5);`)
+	if err != nil {
+	    panic(err)
+	}
+
+	waive_results := Waive_results{}
+
+	fmt.Fprintf(w, "WAIVE BUIDLING PERMITS WITH HIGH POVERTY AND/OR HIGH UNEMPLOYMENT REPORT\n")
+	fmt.Fprintf(w, "\n")
+	defer rows.Close()
+	for rows.Next() {
+	    
+	    err = rows.Scan(&waive_results.permit_id, &waive_results.permit_code, &waive_results.community_area)
+	    if err != nil {
+	        panic(err)
+	    }
+	    fmt.Fprintf(w, "Permit ID: %s\n Permit Code: %s\n Community Area: %s\n", 
+	    	waive_results.permit_id, waive_results.permit_id, waive_results.permit_id)
 	    fmt.Fprintf(w, "\n")
 	    fmt.Fprintf(w, "\n")
 	}
@@ -176,7 +227,7 @@ func handler2(w http.ResponseWriter, r *http.Request) {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	name := "REPORTS"
-	fmt.Fprintf(w, "MSDS 432 - Foundations of Data Engineering. \n Run the %s!\n", name)
+	fmt.Fprintf(w, "MSDS 432 - Foundations of Data Engineering. Run the %s!", name)
 	//fmt.Fprintf(w, timeline.Id)
 
 }
