@@ -18,6 +18,12 @@ type Covid_results struct {
     percent string
 }
 
+type Ccvi_results struct {
+    community_area_or_zip string
+    community_area_name string
+    ccvi_score string
+}
+
 // Declare my database connection
 var db *sql.DB
 
@@ -55,7 +61,7 @@ func main() {
 
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/ccvi", handler1)
-	//http.HandleFunc("/ccvi", handler2)
+	http.HandleFunc("/covid", handler2)
 	//http.HandleFunc("/ccvi", handler3)
 
 	// Determine port for HTTP service.
@@ -103,6 +109,8 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 	}
 
 	covid_results := Covid_results{}
+
+	fmt.Fprintf(w, "WEEKLY COVID CASES REPORT\n")
 	defer rows.Close()
 	for rows.Next() {
 	    
@@ -110,8 +118,10 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 	    if err != nil {
 	        panic(err)
 	    }
-	    fmt.Fprintf(w, "Week of: %s\n Zip Code: %s\n Cases Weekly: %s\n Precent Tested Weekly %s\n: ", 
+	    fmt.Fprintf(w, "Week of: %s\n Zip Code: %s\n Cases Weekly: %s\n Precent Tested Weekly %s\n ", 
 	    	covid_results.week, covid_results.zipcode, covid_results.cases, covid_results.percent)
+	    fmt.Fprintf(w, "\n")
+	    fmt.Fprintf(w, "\n")
 	}
 	err = rows.Err()
 	if err != nil {
@@ -124,12 +134,49 @@ func handler1(w http.ResponseWriter, r *http.Request) {
 
 
 
+func handler2(w http.ResponseWriter, r *http.Request) {
+	log.Println("Serving:", r.URL.Path, "from", r.Host)
+	w.WriteHeader(http.StatusOK)
+
+
+	rows, err := db.Query(`select community_area_or_zip, community_area_name, ccvi_score
+		from ccvi_details
+		where ccvi_category = 'HIGH';`)
+	if err != nil {
+	    panic(err)
+	}
+
+	ccvi_results := Ccvi_results{}
+
+	fmt.Fprintf(w, "WEEKLY HIGH CCVI REPORT\n")
+	defer rows.Close()
+	for rows.Next() {
+	    
+	    err = rows.Scan(&ccvi_results.community_area_or_zip, &ccvi_results.community_area_name, &ccvi_results.ccvi_score)
+	    if err != nil {
+	        panic(err)
+	    }
+	    fmt.Fprintf(w, "Community Area/Zip: %s\n Community Area Name: %s\n CCVI Score: %s\n Precent Tested Weekly %s\n ", 
+	    	ccvi_results.community_area_or_zip, ccvi_results.community_area_name, ccvi_results.ccvi_score)
+	    fmt.Fprintf(w, "\n")
+	    fmt.Fprintf(w, "\n")
+	}
+	err = rows.Err()
+	if err != nil {
+	    panic(err)
+	}
+
+	// Body := list()
+	
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	name := "The REPORTS"
-	fmt.Fprintf(w, "MSDS 432 - Foundations of Data Engineering.. feel free to run %s!\n", name)
+	name := "REPORTS"
+	fmt.Fprintf(w, "MSDS 432 - Foundations of Data Engineering. \n Run the %s!\n", name)
 	//fmt.Fprintf(w, timeline.Id)
 
 }
